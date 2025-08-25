@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTEXBAU - Dotazník pro analýzu procesů</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .progress-container {
+            background: #f0f4f8;
+            padding: 20px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #ff6b00, #ff8c00);
+            height: 100%;
+            width: 8.33%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        .section-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 20px 40px;
+            gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .tab-button:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #ff6b00, #ff8c00);
+            color: white;
+            border-color: #ff6b00;
+        }
+        
+        .tab-button.completed {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            color: #1e293b;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #ff6b00;
+        }
+        
+        .section-description {
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #ff6b00;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .checkbox-item:hover,
+        .radio-item:hover {
+            background: #f1f5f9;
+        }
+        
+        input[type="checkbox"],
+        input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-prev {
+            background: #64748b;
+            color: white;
+        }
+        
+        .btn-prev:hover {
+            background: #475569;
+            transform: translateX(-5px);
+        }
+        
+        .btn-next,
+        .btn-submit {
+            background: linear-gradient(135deg, #ff6b00, #ff8c00);
+            color: white;
+        }
+        
+        .btn-next:hover,
+        .btn-submit:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.3);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .btn-submit:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .priority-list {
+            list-style: none;
+        }
+        
+        .priority-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .priority-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .priority-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #ff6b00;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .time-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .success-icon {
+            font-size: 4em;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b00;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .section-tabs {
+                padding: 15px;
+            }
+            
+            .tab-button {
+                font-size: 0.85em;
+                padding: 8px 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MONTEXBAU</h1>
+            <p>Dotazník pro analýzu procesů a implementaci Odoo</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Sekce 1 z 12</span>
+            </div>
+        </div>
+        
+        <div class="section-tabs">
+            <button class="tab-button active" onclick="showSection(1)">1. Základní info</button>
+            <button class="tab-button" onclick="showSection(2)">2. Personální agentura</button>
+            <button class="tab-button" onclick="showSection(3)">3. Přeshraniční agenda</button>
+            <button class="tab-button" onclick="showSection(4)">4. Stavební projekty</button>
+            <button class="tab-button" onclick="showSection(5)">5. Finance</button>
+            <button class="tab-button" onclick="showSection(6)">6. IT nástroje</button>
+            <button class="tab-button" onclick="showSection(7)">7. AI automatizace</button>
+            <button class="tab-button" onclick="showSection(8)">8. Priority</button>
+            <button class="tab-button" onclick="showSection(9)">9. Měřitelné údaje</button>
+            <button class="tab-button" onclick="showSection(10)">10. Očekávání</button>
+            <button class="tab-button" onclick="showSection(11)">11. Role</button>
+            <button class="tab-button" onclick="showSection(12)">12. Kontakt</button>
+        </div>
+        
+        <div class="form-container">
+            <form id="questionnaireForm">
+                <!-- Sekce 1: Základní informace -->
+                <div class="section active" id="section1">
+                    <h2 class="section-title">1. Základní informace o respondentovi</h2>
+                    <p class="section-description">Pomozte nám lépe pochopit vaši roli a pracovní náplň.</p>
+                    
+                    <div class="form-group">
+                        <label for="name">Jméno a příjmení (volitelné)</label>
+                        <input type="text" id="name" name="name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department" class="required">Oddělení</label>
+                        <select id="department" name="department" required>
+                            <option value="">-- Vyberte oddělení --</option>
+                            <option value="hr">HR/Personální oddělení</option>
+                            <option value="sales">Obchodní oddělení</option>
+                            <option value="accounting">Účetnictví a finance</option>
+                            <option value="admin">Administrativa a back-office</option>
+                            <option value="project">Projektové řízení</option>
+                            <option value="other">Jiné</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position" class="required">Pracovní pozice</label>
+                        <input type="text" id="position" name="position" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience" class="required">Délka práce v MONTEXBAU</label>
+                        <select id="experience" name="experience" required>
+                            <option value="">-- Vyberte --</option>
+                            <option value="less1">Méně než 1 rok</option>
+                            <option value="1-3">1-3 roky</option>
+                            <option value="3-5">3-5 let</option>
+                            <option value="5-10">5-10 let</option>
+                            <option value="more10">Více než 10 let</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location" class="required">Lokace práce</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="loc_cz" name="location[]" value="cz">
+                                <label for="loc_cz">Česká republika</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="loc_de" name="location[]" value="de">
+                                <label for="loc_de">Německo</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="loc_home" name="location[]" value="home">
+                                <label for="loc_home">Home office</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="main_activities">Popište hlavní pracovní činnosti (3-5 nejdůležitějších)</label>
+                        <textarea id="main_activities" name="main_activities" rows="4"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 2: Personální agentura -->
+                <div class="section" id="section2">
+                    <h2 class="section-title">2. Specifické procesy - Personální agentura</h2>
+                    <p class="section-description">Jak pracujete s náborem a správou pracovníků pro stavební projekty?</p>
+                    
+                    <div class="form-group">
+                        <label for="candidate_database">Jak evidujete uchazeče o práci?</label>
+                        <textarea id="candidate_database" name="candidate_database" rows="3" placeholder="Např. Excel, vlastní databáze, papírově..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidates_per_week">Kolik uchazečů zpracováváte týdně/měsíčně?</label>
+                        <input type="text" id="candidates_per_week" name="candidates_per_week">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recruitment_time">Jak dlouho trvá proces od prvního kontaktu po nástup pracovníka?</label>
+                        <input type="text" id="recruitment_time" name="recruitment_time">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="worker_availability">Jak sledujete dostupnost pracovníků pro projekty?</label>
+                        <textarea id="worker_availability" name="worker_availability" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="worker_assignment">Jak řešíte přidělování pracovníků na konkrétní stavby?</label>
+                        <textarea id="worker_assignment" name="worker_assignment" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="document_management">Jak spravujete osobní dokumenty (pasy, A1 formuláře, pracovní povolení)?</label>
+                        <textarea id="document_management" name="document_management" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="certification_tracking">Jak sledujete platnost dokumentů a certifikací?</label>
+                        <textarea id="certification_tracking" name="certification_tracking" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="worker_communication">Jak komunikujete s českými/ukrajinskými/bulharskými pracovníky?</label>
+                        <textarea id="worker_communication" name="worker_communication" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 3: Přeshraniční agenda -->
+                <div class="section" id="section3">
+                    <h2 class="section-title">3. Přeshraniční agenda ČR-Německo</h2>
+                    <p class="section-description">Specifika práce s německými partnery a legislativou.</p>
+                    
+                    <div class="form-group">
+                        <label for="worker_posting">Jak evidujete vysílání pracovníků do Německa?</label>
+                        <textarea id="worker_posting" name="worker_posting" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="a1_forms">Jak zpracováváte A1 formuláře a E101?</label>
+                        <textarea id="a1_forms" name="a1_forms" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="days_tracking">Jak sledujete počet dní strávených v Německu (183 dní pravidlo)?</label>
+                        <textarea id="days_tracking" name="days_tracking" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accommodation">Jak řešíte ubytování pracovníků v Německu?</label>
+                        <textarea id="accommodation" name="accommodation" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transport">Jak organizujete dopravu na stavby?</label>
+                        <textarea id="transport" name="transport" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="legislation_tracking">Jak sledujete změny v německé legislativě (Mindestlohn, atd.)?</label>
+                        <textarea id="legislation_tracking" name="legislation_tracking" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="zoll_documentation">Jak připravujete podklady pro kontroly Zoll?</label>
+                        <textarea id="zoll_documentation" name="zoll_documentation" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="german_communication">Jak komunikujete s německými stavebními firmami?</label>
+                        <textarea id="german_communication" name="german_communication" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 4: Stavební projekty -->
+                <div class="section" id="section4">
+                    <h2 class="section-title">4. Stavební projekty - Administrativa</h2>
+                    <p class="section-description">Správa zakázek a specializované stavební činnosti.</p>
+                    
+                    <div class="form-group">
+                        <label for="inquiry_management">Jak evidujete poptávky na stavební práce?</label>
+                        <textarea id="inquiry_management" name="inquiry_management" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quote_creation">Jak vytváříte cenové nabídky?</label>
+                        <textarea id="quote_creation" name="quote_creation" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project_tracking">Jak sledujete stav jednotlivých projektů?</label>
+                        <textarea id="project_tracking" name="project_tracking" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="current_projects">Které projekty máte aktuálně rozpracované?</label>
+                        <textarea id="current_projects" name="current_projects" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Specializace MONTEXBAU - jak řešíte:</label>
+                        
+                        <label for="roof_insulation" style="margin-top: 15px;">Střešní izolace (PVC, bitumen)</label>
+                        <textarea id="roof_insulation" name="roof_insulation" rows="2"></textarea>
+                        
+                        <label for="scaffolding" style="margin-top: 15px;">Lešení</label>
+                        <textarea id="scaffolding" name="scaffolding" rows="2"></textarea>
+                        
+                        <label for="plumbing" style="margin-top: 15px;">Instalatérské práce</label>
+                        <textarea id="plumbing" name="plumbing" rows="2"></textarea>
+                        
+                        <label for="electrical" style="margin-top: 15px;">Elektroinstalace</label>
+                        <textarea id="electrical" name="electrical" rows="2"></textarea>
+                        
+                        <label for="wooden_structures" style="margin-top: 15px;">Dřevostavby</label>
+                        <textarea id="wooden_structures" name="wooden_structures" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="material_ordering">Jak objednáváte materiál na stavby?</label>
+                        <textarea id="material_ordering" name="material_ordering" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="equipment_tracking">Jak evidujete nářadí a vybavení na stavbách?</label>
+                        <textarea id="equipment_tracking" name="equipment_tracking" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 5: Finance -->
+                <div class="section" id="section5">
+                    <h2 class="section-title">5. Finance a účetnictví - Specifika</h2>
+                    <p class="section-description">Mzdová agenda, fakturace a finanční řízení.</p>
+                    
+                    <div class="form-group">
+                        <label for="payroll_processing">Jak zpracováváte mzdy pro 200+ zaměstnanců?</label>
+                        <textarea id="payroll_processing" name="payroll_processing" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="german_bonuses">Jak počítáte příplatky za práci v Německu?</label>
+                        <textarea id="german_bonuses" name="german_bonuses" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="per_diem">Jak evidujete diety a cestovní náhrady?</label>
+                        <textarea id="per_diem" name="per_diem" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_methods">Jak řešíte výplaty v hotovosti/na účet/v eurech?</label>
+                        <textarea id="payment_methods" name="payment_methods" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="german_taxes">Jak zpracováváte německé daně a odvody?</label>
+                        <textarea id="german_taxes" name="german_taxes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoicing_germany">Jak fakturujete německým zákazníkům?</label>
+                        <textarea id="invoicing_germany" name="invoicing_germany" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vat_handling">Jak řešíte DPH v rámci EU (reverse charge)?</label>
+                        <textarea id="vat_handling" name="vat_handling" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_tracking">Jak sledujete splatnost faktur?</label>
+                        <textarea id="payment_tracking" name="payment_tracking" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="currency_exchange">Jak řešíte kurzové rozdíly EUR/CZK?</label>
+                        <textarea id="currency_exchange" name="currency_exchange" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 6: IT nástroje -->
+                <div class="section" id="section6">
+                    <h2 class="section-title">6. Současné IT nástroje</h2>
+                    <p class="section-description">Jaké systémy a nástroje aktuálně používáte?</p>
+                    
+                    <div class="form-group">
+                        <label for="accounting_system">Který systém používáte pro účetnictví a mzdy?</label>
+                        <input type="text" id="accounting_system" name="accounting_system">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hr_system">Který systém používáte pro evidenci zaměstnanců?</label>
+                        <input type="text" id="hr_system" name="hr_system">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project_system">Který systém používáte pro projektové řízení?</label>
+                        <input type="text" id="project_system" name="project_system">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="communication_tools">Jaké nástroje používáte pro komunikaci?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tool_email" name="communication_tools[]" value="email">
+                                <label for="tool_email">Email</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tool_phone" name="communication_tools[]" value="phone">
+                                <label for="tool_phone">Telefon</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tool_whatsapp" name="communication_tools[]" value="whatsapp">
+                                <label for="tool_whatsapp">WhatsApp</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tool_teams" name="communication_tools[]" value="teams">
+                                <label for="tool_teams">Microsoft Teams</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tool_other" name="communication_tools[]" value="other">
+                                <label for="tool_other">Jiné</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="duplicate_entries">Co musíte evidovat vícekrát v různých systémech?</label>
+                        <textarea id="duplicate_entries" name="duplicate_entries" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="excel_usage">Co řešíte v Excelu, protože to systém neumí?</label>
+                        <textarea id="excel_usage" name="excel_usage" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 7: AI automatizace -->
+                <div class="section" id="section7">
+                    <h2 class="section-title">7. Potenciál pro AI automatizaci</h2>
+                    <p class="section-description">Které činnosti by mohla převzít nebo usnadnit umělá inteligence?</p>
+                    
+                    <div class="form-group">
+                        <label for="translations_volume">Kolik dokumentů překládáte CZ↔DE měsíčně?</label>
+                        <input type="text" id="translations_volume" name="translations_volume">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="standard_documents">Které dokumenty jsou standardizované (smlouvy, formuláře)?</label>
+                        <textarea id="standard_documents" name="standard_documents" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="form_filling_time">Kolik času trávíte vyplňováním formulářů pro úřady?</label>
+                        <input type="text" id="form_filling_time" name="form_filling_time">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="repetitive_questions">Které dotazy od uchazečů se stále opakují?</label>
+                        <textarea id="repetitive_questions" name="repetitive_questions" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="routine_emails">Které odpovědi na emaily jsou rutinní?</label>
+                        <textarea id="routine_emails" name="routine_emails" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reports_created">Jaké reporty vytváříte pro management?</label>
+                        <textarea id="reports_created" name="reports_created" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="worker_matching">Jak párujete pracovníky s projekty podle kvalifikace?</label>
+                        <textarea id="worker_matching" name="worker_matching" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 8: Priority -->
+                <div class="section" id="section8">
+                    <h2 class="section-title">8. Prioritní oblasti k řešení</h2>
+                    <p class="section-description">Přetáhněte položky a seřaďte je podle důležitosti (1 = nejdůležitější).</p>
+                    
+                    <ul class="priority-list" id="priorityList">
+                        <li class="priority-item" data-value="payroll">
+                            <span class="priority-number">1</span>
+                            Automatizace mzdové agendy a výkazů
+                        </li>
+                        <li class="priority-item" data-value="digitalization">
+                            <span class="priority-number">2</span>
+                            Digitalizace osobních složek pracovníků
+                        </li>
+                        <li class="priority-item" data-value="document_validity">
+                            <span class="priority-number">3</span>
+                            Automatické sledování platnosti dokumentů
+                        </li>
+                        <li class="priority-item" data-value="field_communication">
+                            <span class="priority-number">4</span>
+                            Zjednodušení komunikace s pracovníky v terénu
+                        </li>
+                        <li class="priority-item" data-value="invoicing">
+                            <span class="priority-number">5</span>
+                            Propojení fakturace s projekty
+                        </li>
+                        <li class="priority-item" data-value="a1_automation">
+                            <span class="priority-number">6</span>
+                            Automatizace A1 formulářů
+                        </li>
+                        <li class="priority-item" data-value="candidate_portal">
+                            <span class="priority-number">7</span>
+                            Online portál pro uchazeče
+                        </li>
+                        <li class="priority-item" data-value="mobile_attendance">
+                            <span class="priority-number">8</span>
+                            Mobilní aplikace pro evidenci docházky
+                        </li>
+                        <li class="priority-item" data-value="auto_translation">
+                            <span class="priority-number">9</span>
+                            Automatické překlady dokumentů
+                        </li>
+                        <li class="priority-item" data-value="dashboard">
+                            <span class="priority-number">10</span>
+                            Dashboard pro management
+                        </li>
+                    </ul>
+                    
+                    <div class="form-group">
+                        <label for="other_priorities">Jiné priority (specifikujte)</label>
+                        <textarea id="other_priorities" name="other_priorities" rows="2"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 9: Měřitelné údaje -->
+                <div class="section" id="section9">
+                    <h2 class="section-title">9. Měřitelné údaje pro ROI</h2>
+                    <p class="section-description">Pomozte nám vyčíslit časovou náročnost a náklady.</p>
+                    
+                    <div class="form-group">
+                        <label>Časová náročnost (hodin týdně):</label>
+                        <div class="time-input-group">
+                            <div>
+                                <label for="time_payroll">Zpracování mezd</label>
+                                <input type="number" id="time_payroll" name="time_payroll" min="0">
+                            </div>
+                            <div>
+                                <label for="time_a1">Vyřizování A1 formulářů</label>
+                                <input type="number" id="time_a1" name="time_a1" min="0">
+                            </div>
+                            <div>
+                                <label for="time_communication">Komunikace s pracovníky</label>
+                                <input type="number" id="time_communication" name="time_communication" min="0">
+                            </div>
+                            <div>
+                                <label for="time_translations">Překlady dokumentů</label>
+                                <input type="number" id="time_translations" name="time_translations" min="0">
+                            </div>
+                            <div>
+                                <label for="time_reporting">Reporting a analýzy</label>
+                                <input type="number" id="time_reporting" name="time_reporting" min="0">
+                            </div>
+                            <div>
+                                <label for="time_payment_urgency">Urgence plateb</label>
+                                <input type="number" id="time_payment_urgency" name="time_payment_urgency" min="0">
+                            </div>
+                            <div>
+                                <label for="time_document_search">Hledání dokumentů</label>
+                                <input type="number" id="time_document_search" name="time_document_search" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="error_costs">Náklady na chyby (pokuty, ztráty pracovníků, zpoždění projektů)</label>
+                        <textarea id="error_costs" name="error_costs" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="documents_monthly">Kolik dokumentů/transakcí zpracujete měsíčně?</label>
+                        <input type="text" id="documents_monthly" name="documents_monthly">
+                    </div>
+                </div>
+                
+                <!-- Sekce 10: Očekávání -->
+                <div class="section" id="section10">
+                    <h2 class="section-title">10. Očekávání od Odoo</h2>
+                    <p class="section-description">Co musí nový systém splňovat?</p>
+                    
+                    <div class="form-group">
+                        <label>Co musí nový systém zvládnout:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_multilang" name="requirements[]" value="multilang">
+                                <label for="req_multilang">Vícejazyčnost (CZ/DE/UA/BG)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_multicurrency" name="requirements[]" value="multicurrency">
+                                <label for="req_multicurrency">Práce s více měnami</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_mobile" name="requirements[]" value="mobile">
+                                <label for="req_mobile">Mobilní přístup ze staveb</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_integration" name="requirements[]" value="integration">
+                                <label for="req_integration">Integrace s německými systémy</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_documents" name="requirements[]" value="documents">
+                                <label for="req_documents">Automatické generování dokumentů</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="req_legislation" name="requirements[]" value="legislation">
+                                <label for="req_legislation">Sledování legislativních požadavků</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="concerns">Obavy a rizika z přechodu na nový systém</label>
+                        <textarea id="concerns" name="concerns" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ideal_system">Pokud byste mohli něco změnit, co by to bylo?</label>
+                        <textarea id="ideal_system" name="ideal_system" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Sekce 11: Role a odpovědnosti -->
+                <div class="section" id="section11">
+                    <h2 class="section-title">11. Role a odpovědnosti</h2>
+                    <p class="section-description">Kdo v MONTEXBAU rozhoduje o čem?</p>
+                    
+                    <div class="form-group">
+                        <label for="decision_hiring">Kdo rozhoduje o přijetí nového pracovníka?</label>
+                        <input type="text" id="decision_hiring" name="decision_hiring">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decision_project_assignment">Kdo rozhoduje o přidělení na projekt?</label>
+                        <input type="text" id="decision_project_assignment" name="decision_project_assignment">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decision_bonus">Kdo schvaluje mimořádné odměny?</label>
+                        <input type="text" id="decision_bonus" name="decision_bonus">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decision_purchase">Kdo schvaluje nákup materiálu nad 50.000 Kč?</label>
+                        <input type="text" id="decision_purchase" name="decision_purchase">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decision_price_change">Kdo rozhoduje o změně ceny projektu?</label>
+                        <input type="text" id="decision_price_change" name="decision_price_change">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decision_urgent">Kdo řeší urgentní změny na stavbě?</label>
+                        <input type="text" id="decision_urgent" name="decision_urgent">
+                    </div>
+                </div>
+                
+                <!-- Sekce 12: Kontakt -->
+                <div class="section" id="section12">
+                    <h2 class="section-title">12. Kontakt a follow-up</h2>
+                    <p class="section-description">Jak s vámi můžeme dále spolupracovat?</p>
+                    
+                    <div class="form-group">
+                        <label for="followup_agree">Souhlasíte s následným rozhovorem?</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="followup_yes" name="followup_agree" value="yes">
+                                <label for="followup_yes">Ano</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="followup_no" name="followup_agree" value="no">
+                                <label for="followup_no">Ne</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact_method">Preferovaný způsob kontaktu</label>
+                        <select id="contact_method" name="contact_method">
+                            <option value="">-- Vyberte --</option>
+                            <option value="email">Email</option>
+                            <option value="phone">Telefon</option>
+                            <option value="teams">Microsoft Teams</option>
+                            <option value="personal">Osobní setkání</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="best_time">Nejlepší čas pro rozhovor</label>
+                        <input type="text" id="best_time" name="best_time" placeholder="Např. pondělí-středa 14:00-16:00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact_email">Váš email pro zaslání výsledků</label>
+                        <input type="email" id="contact_email" name="contact_email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact_phone">Váš telefon (volitelné)</label>
+                        <input type="tel" id="contact_phone" name="contact_phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inform_results">Chcete být informováni o výsledcích analýzy?</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="inform_yes" name="inform_results" value="yes">
+                                <label for="inform_yes">Ano</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="inform_no" name="inform_results" value="no">
+                                <label for="inform_no">Ne</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="additional_notes">Další poznámky nebo komentáře</label>
+                        <textarea id="additional_notes" name="additional_notes" rows="4"></textarea>
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-prev" id="prevBtn" onclick="changeSection(-1)" disabled>
+                        ← Předchozí
+                    </button>
+                    <button type="button" class="btn btn-next" id="nextBtn" onclick="changeSection(1)">
+                        Další →
+                    </button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">
+                        Odeslat dotazník
+                    </button>
+                </div>
+            </form>
+            
+            <div class="loading" id="loadingDiv">
+                <div class="spinner"></div>
+                <p>Odesílám data...</p>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">✅</div>
+                <h2>Děkujeme za vyplnění dotazníku!</h2>
+                <p>Vaše odpovědi byly úspěšně odeslány. Brzy vás budeme kontaktovat s dalšími kroky.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentSection = 1;
+        const totalSections = 12;
+        let formData = {};
+        
+        // N8N Webhook URL - UPRAVTE NA VAŠI URL Z N8N INSTANCE
+        const WEBHOOK_URL = 'https://n8n.praut.cz/webhook/montexbau-dotaznik';
+        
+        function showSection(sectionNumber) {
+            // Uložit data z aktuální sekce
+            saveCurrentSectionData();
+            
+            // Skrýt všechny sekce
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Zobrazit vybranou sekci
+            document.getElementById(`section${sectionNumber}`).classList.add('active');
+            
+            // Aktualizovat aktivní tab
+            document.querySelectorAll('.tab-button').forEach((tab, index) => {
+                tab.classList.remove('active');
+                if (index + 1 === sectionNumber) {
+                    tab.classList.add('active');
+                }
+                // Označit dokončené sekce
+                if (index + 1 < sectionNumber) {
+                    tab.classList.add('completed');
+                }
+            });
+            
+            currentSection = sectionNumber;
+            updateProgress();
+            updateNavigationButtons();
+        }
+        
+        function changeSection(direction) {
+            const newSection = currentSection + direction;
+            if (newSection >= 1 && newSection <= totalSections) {
+                showSection(newSection);
+            }
+        }
+        
+        function updateProgress() {
+            const progressPercent = (currentSection / totalSections) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `Sekce ${currentSection} z ${totalSections}`;
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Předchozí tlačítko
+            prevBtn.disabled = currentSection === 1;
+            
+            // Další/Odeslat tlačítko
+            if (currentSection === totalSections) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+        
+        function saveCurrentSectionData() {
+            const currentSectionElement = document.querySelector('.section.active');
+            if (!currentSectionElement) return;
+            
+            // Uložit všechny inputy z aktuální sekce
+            currentSectionElement.querySelectorAll('input, select, textarea').forEach(element => {
+                if (element.type === 'checkbox') {
+                    if (!formData[element.name]) {
+                        formData[element.name] = [];
+                    }
+                    if (element.checked && !formData[element.name].includes(element.value)) {
+                        formData[element.name].push(element.value);
+                    }
+                } else if (element.type === 'radio') {
+                    if (element.checked) {
+                        formData[element.name] = element.value;
+                    }
+                } else {
+                    formData[element.name] = element.value;
+                }
+            });
+            
+            // Uložit priority
+            if (currentSection === 8) {
+                savePriorities();
+            }
+        }
+        
+        function savePriorities() {
+            const priorityItems = document.querySelectorAll('.priority-item');
+            const priorities = [];
+            priorityItems.forEach((item, index) => {
+                priorities.push({
+                    order: index + 1,
+                    value: item.getAttribute('data-value'),
+                    text: item.textContent.trim()
+                });
+            });
+            formData.priorities = priorities;
+        }
+        
+        // Drag and drop pro priority
+        let draggedElement = null;
+        
+        function initDragAndDrop() {
+            const priorityList = document.getElementById('priorityList');
+            const items = priorityList.querySelectorAll('.priority-item');
+            
+            items.forEach(item => {
+                item.draggable = true;
+                
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '';
+                });
+                
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(priorityList, e.clientY);
+                    if (afterElement == null) {
+                        priorityList.appendChild(draggedElement);
+                    } else {
+                        priorityList.insertBefore(draggedElement, afterElement);
+                    }
+                });
+            });
+            
+            priorityList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                updatePriorityNumbers();
+            });
+        }
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.priority-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        function updatePriorityNumbers() {
+            const items = document.querySelectorAll('.priority-item');
+            items.forEach((item, index) => {
+                const numberSpan = item.querySelector('.priority-number');
+                numberSpan.textContent = index + 1;
+            });
+        }
+        
+        // Submit formuláře
+        document.getElementById('questionnaireForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Uložit data z poslední sekce
+            saveCurrentSectionData();
+            
+            // Zobrazit loading
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                // Odeslat data na webhook
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ body: formData })
+                });
+                
+                if (response.ok) {
+                    // Skrýt formulář a zobrazit úspěšnou zprávu
+                    document.getElementById('questionnaireForm').style.display = 'none';
+                    document.getElementById('loadingDiv').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                } else {
+                    throw new Error('Chyba při odesílání formuláře');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Nastala chyba při odesílání formuláře. Prosím zkuste to znovu nebo nás kontaktujte přímo.');
+                document.getElementById('loadingDiv').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+        
+        // Inicializace při načtení stránky
+        document.addEventListener('DOMContentLoaded', function() {
+            initDragAndDrop();
+            updateProgress();
+            updateNavigationButtons();
+        });
+    </script>
+</body>
+</html>
